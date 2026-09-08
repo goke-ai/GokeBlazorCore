@@ -1,1 +1,8 @@
-<Solution />
+<Solution>
+  <Project Path="Goke.Blazor.Components/Goke.Blazor.Components.csproj" Id="78ef88b3-8685-4218-b98e-178501dc26b9" />
+  <Project Path="TestHyb/TestHyb.Shared/TestHyb.Shared.csproj" Id="794c856d-1dd2-4b0a-88d2-e4d1aaa48d96" />
+  <Project Path="TestHyb/TestHyb.Web/TestHyb.Web.csproj" Id="efd67ade-d713-4159-b05e-d256d42d3754" />
+  <Project Path="TestHyb/TestHyb/TestHyb.csproj" Id="3757dbed-201d-441e-861c-6d1caddf88bb">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>
