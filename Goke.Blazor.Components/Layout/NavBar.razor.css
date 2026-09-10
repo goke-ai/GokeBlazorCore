@@ -1,0 +1,75 @@
+﻿.navbar {
+    width: 100%;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.navbar-collapse {
+    display: flex !important;
+    gap: 1rem;
+    /*    display: block;*/
+    height: calc(100vh - 3.5rem);
+    overflow-y: auto;
+    flex-basis: unset;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+/* mobile*/
+@media (max-width: 641px) {
+    
+}
+
+@media (max-width: 1024.98px) {
+    .navbar-expand-lg {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+
+        
+
+    .navbar > .container-fluid {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .navbar-nav {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+/* Tablet*/
+@media (min-width: 641px) and (max-width: 1024.98px) {
+    .navbar-toggler {
+    }
+}
+
+/* Laptop */
+@media (min-width: 1024.98px) {
+    .navbar-collapse {
+        height: unset;
+        overflow-y: unset;
+    }
+
+    .navbar > .container-fluid {
+        justify-content: flex-start;
+    }
+
+    .navbar-collapse {
+        /*    display: block;*/
+        flex-basis: unset;
+        display: flex !important;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+    
+
+}
