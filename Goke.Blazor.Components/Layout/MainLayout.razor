@@ -1,9 +1,14 @@
 ﻿@inherits LayoutComponentBase
+@using Goke.Blazor.Components.Models
 
-<div class="page" data-bs-theme="dark">
-    <input type="checkbox" title="Navigation menu" class="navbar-toggler-main"  />
+<div class="page">
+    <input type="checkbox" title="Navigation menu" class="navbar-toggler-main" />
     <div class="sidebar">
-        <NavBar />
+        <NavMenu AdditionalMenuLinks="AdditionalMenuLinks"
+                 AdditionalMenuItems="AdditionalMenuItems"
+                 CurrentTheme="@CurrentTheme"
+                 IsDarkTheme="@IsDarkTheme"
+                 IsDarkThemeChanged="@IsDarkThemeChanged" />
     </div>
 
     <main>
@@ -22,3 +27,20 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<NavMenuItem>? AdditionalMenuLinks { get; set; }
+
+    [Parameter]
+    public RenderFragment? AdditionalMenuItems { get; set; }
+
+    [Parameter]
+    public string CurrentTheme { get; set; } = "dark";
+
+    [Parameter]
+    public bool IsDarkTheme { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsDarkThemeChanged { get; set; }
+}

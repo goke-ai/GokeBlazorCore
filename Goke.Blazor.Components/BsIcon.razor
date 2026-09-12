@@ -1,0 +1,8 @@
+﻿<svg class="@Class" aria-hidden="true">
+    <use href="@($"{Assets["_content/Goke.Blazor.Components/bs-icons.svg"]}#{Name}")"></use>
+</svg>
+
+@code {
+    [Parameter, EditorRequired] public string Name { get; set; } = default!;
+    [Parameter] public string Class { get; set; } = "bi";
+}

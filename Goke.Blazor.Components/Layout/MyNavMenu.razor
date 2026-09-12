@@ -1,0 +1,150 @@
+﻿@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">GBC</a>
+
+        @* <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button> *@
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="counter">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="weather">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+                    </NavLink>
+                </li>
+
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="auth">
+                        <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth Required
+                    </NavLink>
+                </li>
+
+                <AuthorizeView Roles="Administrators">
+                    <Authorized>
+                        <li class="nav-item dropdown">
+                            <NavLink class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Admin
+                            </NavLink>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <NavLink class="dropdown-item" href="admin">
+                                        <span class="bi bi-boxes-nav-menu" aria-hidden="true"></span> Dashboard
+                                    </NavLink>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <NavLink class="dropdown-item" href="admin/users">
+                                        <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Users
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink class="dropdown-item" href="admin/roles">
+                                        <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Roles
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+
+                <AuthorizeView>
+                    <Authorized>
+                        <li class="nav-item dropdown">
+                            <NavLink class="nav-link dropdown-toggle" href="Account/Manage" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @context.User.Identity?.Name
+                            </NavLink>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <NavLink class="dropdown-item" href="Account/Manage">
+                                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span>
+                                        <span>Manage</span>
+                                    </NavLink>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="Account/Logout" method="post">
+                                        <AntiforgeryToken />
+                                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                                        <button type="submit" class="dropdown-item nav-button">
+                                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span>
+                                            <span>Logout</span>
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    </Authorized>
+                    <NotAuthorized>
+                        <li class="nav-item dropdown">
+                            <NavLink class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Account
+                            </NavLink>
+                            <ul class="dropdown-menu">
+                                <li class="nav-item">
+                                    <NavLink class="dropdown-item" href="Account/Login">
+                                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span>
+                                        <span>Login</span>
+                                    </NavLink>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="nav-item">
+                                    <NavLink class="dropdown-item" href="Account/Register">
+                                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span>
+                                        <span>Register</span>
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        </li>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ul>
+            
+            <ThemeControl CurrentTheme="@currentTheme" IsDarkTheme="@IsDarkTheme" IsDarkThemeChanged="@IsDarkThemeChanged" />
+
+        </div>
+    </div>
+</nav>
+
+@code { 
+    [Parameter]
+    public bool IsDarkTheme { get; set; } = false;
+    [Parameter]
+    public EventCallback<bool> IsDarkThemeChanged { get; set; }
+
+    string currentTheme = "dark";
+
+    private string? currentUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

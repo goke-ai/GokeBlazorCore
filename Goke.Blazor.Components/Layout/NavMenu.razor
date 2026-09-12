@@ -1,31 +1,128 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using Goke.Blazor.Components.Models
+@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
         <a class="navbar-brand" href="">GBC</a>
+
+        @* <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button> *@
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <svg class="bi" aria-hidden="true">
+                            <use href="_content/Goke.Blazor.Components/bs-icons.svg#house-door-fill"></use>
+                        </svg>  Home
+                    </NavLink>
+                </li>
+
+                @if (AdditionalMenuLinks is not null)
+                {
+                    @foreach (var menu in AdditionalMenuLinks)
+                    {
+
+                        if (menu.Dropdown != null && menu.Dropdown.Count > 0)
+                        {
+                            <li class="nav-item dropdown">
+                                <NavLink class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @if (!string.IsNullOrWhiteSpace(menu.Icon))
+                                    {
+                                        <BsIcon Name="@menu.Icon" />
+                                    }
+                                    @menu.Title
+                                </NavLink>
+                                <ul class="dropdown-menu">
+                                    @foreach (var subMenu in menu.Dropdown)
+                                    {
+                                        if (subMenu.IsDivider)
+                                        {
+                                            <li><hr class="dropdown-divider"></li>
+                                        }
+                                        else
+                                        {
+                                            <li class="nav-item">
+                                                <NavLink class="@(subMenu.IsDisabled ? "dropdown-item disabled" : "dropdown-item")" href="@subMenu.Href">
+                                                    @if (!string.IsNullOrWhiteSpace(subMenu.Icon))
+                                                    {
+                                                        <BsIcon Name="@subMenu.Icon" />
+                                                    }
+                                                    @subMenu.Title
+                                                </NavLink>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <NavLink class="@(menu.IsDisabled ? "nav-link disabled" : "nav-link")" href="@menu.Href" Match="@menu.Match">
+                                    @if (!string.IsNullOrWhiteSpace(menu.Icon))
+                                    {
+                                        <BsIcon Name="@menu.Icon" />
+                                    }
+                                    @menu.Title
+                                </NavLink>
+                            </li>
+                        }
+
+                    }
+                }
+
+                @AdditionalMenuItems
+            </ul>
+            <div>
+                @OtherMenuItems
+            </div>
+            <ThemeControl CurrentTheme="@CurrentTheme"
+                          IsDarkTheme="@IsDarkTheme"
+                          IsDarkThemeChanged="@IsDarkThemeChanged" />
+        </div>
     </div>
-</div>
+</nav>
 
-@* <input type="checkbox" title="Navigation menu" class="navbar-toggler" /> *@
+@code {
+    [Parameter]
+    public IReadOnlyList<NavMenuItem>? AdditionalMenuLinks { get; set; }
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+    [Parameter]
+    public RenderFragment? AdditionalMenuItems { get; set; }
+    [Parameter]
+    public RenderFragment? OtherMenuItems { get; set; }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+    [Parameter]
+    public string CurrentTheme { get; set; } = "dark";
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
+    [Parameter]
+    public bool IsDarkTheme { get; set; }
 
-</div>
+    [Parameter]
+    public EventCallback<bool> IsDarkThemeChanged { get; set; }
 
+    private string? currentUrl;
+
+    protected override Task OnInitializedAsync()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+        return Task.CompletedTask;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

@@ -1,0 +1,79 @@
+﻿@inherits LayoutComponentBase
+@using Goke.Blazor.Components.Models
+@using Microsoft.AspNetCore.Components.Authorization
+
+<Goke.Blazor.Components.Layout.MainLayout AdditionalMenuLinks="MenuLinks"
+                                          CurrentTheme="@CurrentTheme"
+                                          IsDarkTheme="@IsDarkTheme"
+                                          IsDarkThemeChanged="@OnIsDarkThemeChanged">
+    <AdditionalMenuItems>
+        <li class="nav-item dropdown">
+            <NavLink class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <BsIcon Name="@Icons.PersonFillLock" />
+                Admin
+            </NavLink>
+            <ul class="dropdown-menu">
+                <li>
+                    <NavLink class="dropdown-item" href="admin">
+                        <BsIcon Name="@Icons.Speedometer2" /> Dashboard
+                    </NavLink>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <NavLink class="dropdown-item" href="admin/users">
+                        <BsIcon Name="@Icons.PeopleFill" /> Users
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="dropdown-item" href="admin/roles">
+                        <BsIcon Name="@Icons.PersonWorkspace" /> Roles
+                    </NavLink>
+                </li>
+            </ul>
+        </li>
+    </AdditionalMenuItems>
+    <Body>
+        @Body
+    </Body>
+</Goke.Blazor.Components.Layout.MainLayout>
+
+                                          
+@code {
+    private string CurrentTheme { get; set; } = "dark";
+    private bool IsDarkTheme { get; set; }
+
+    private IReadOnlyList<NavMenuItem> MenuLinks =>
+    [
+        new NavMenuItem
+        {
+            Title = "Counter",
+            Href = "counter",
+            Icon = Icons.PlusSquareFill,
+            IconCssClass = Icons.ToIconCss(Icons.PlusSquareFill)
+        },
+        new NavMenuItem
+        {
+            Title = "Weather",
+            Href = "weather",
+            Icon = Icons.CloudsFill,
+            IconCssClass = Icons.ToIconCss(Icons.CloudsFill)
+        },
+        new NavMenuItem { Title = "Account", Href = "", Icon = Icons.PersonFillGear, IconCssClass = Icons.ToIconCss(Icons.PersonFillGear),
+            Dropdown = new List<NavMenuItem>
+            {
+                new NavMenuItem { Title = "Login", Href = "Account/Login", Icon = Icons.PersonBadge, IconCssClass = Icons.ToIconCss(Icons.PersonBadge) },
+                new NavMenuItem { Title = "External Login", Href = "Account/Login", Icon = Icons.PersonFillUp, IconCssClass = Icons.ToIconCss(Icons.PersonFillUp) },
+                new NavMenuItem { Title="-", Href= "-", IsDivider=true},
+                new NavMenuItem { Title = "Register", Href = "Account/Register", Icon = Icons.PersonFillAdd, IconCssClass = Icons.ToIconCss(Icons.PersonFillAdd) }
+            }
+        },
+
+    ];
+
+    private Task OnIsDarkThemeChanged(bool value)
+    {
+        IsDarkTheme = value;
+        CurrentTheme = value ? "dark" : "light";
+        return Task.CompletedTask;
+    }
+}

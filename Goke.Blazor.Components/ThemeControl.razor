@@ -1,0 +1,117 @@
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<div class="btn-group" role="group" aria-label="Theme Switch">
+    <button class="btn @(IsDarkTheme ? "btn-outline-secondary" : "btn-secondary")"
+            style="border-radius: 40% 0 0 40%"
+            @onclick="OnLightThemeAsync">
+        <span class="bi bi-cloud-sun-fill-nav-menu" aria-hidden="true"></span>
+    </button>
+
+    <button class="btn @(IsDarkTheme ? "btn-secondary" : "btn-outline-secondary")"
+            style="border-radius: 0 40% 40% 0"
+            @onclick="OnDarkThemeAsync">
+        <span class="bi bi-cloud-moon-fill-nav-menu" aria-hidden="true"></span>
+    </button>
+</div>
+
+@code {
+    [Parameter]
+    public string CurrentTheme { get; set; } = "light";
+
+    [Parameter]
+    public bool IsDarkTheme { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsDarkThemeChanged { get; set; }
+
+    private IJSObjectReference? module;
+    private DotNetObjectReference<ThemeControl>? objRef;
+
+    protected override void OnInitialized() =>
+        objRef = DotNetObjectReference.Create(this);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        module = await JS.InvokeAsync<IJSObjectReference>(
+            "import",
+            "./_content/Goke.Blazor.Components/ThemeControl.razor.js");
+
+        await module.InvokeVoidAsync("Initialize");
+
+        var savedTheme = await module.InvokeAsync<string?>("getStoredTheme");
+
+        CurrentTheme = string.IsNullOrWhiteSpace(savedTheme)
+            ? await module.InvokeAsync<string>("getSystemTheme")
+            : savedTheme;
+
+        IsDarkTheme = string.Equals(CurrentTheme, "dark", StringComparison.OrdinalIgnoreCase);
+
+        await module.InvokeVoidAsync("registerThemeChangeHandler", objRef);
+        await ApplyThemeAsync();
+        await IsDarkThemeChanged.InvokeAsync(IsDarkTheme);
+    }
+
+    private async Task OnLightThemeAsync()
+    {
+        IsDarkTheme = false;
+        CurrentTheme = "light";
+
+        await ApplyThemeAsync();
+        await IsDarkThemeChanged.InvokeAsync(IsDarkTheme);
+    }
+
+    private async Task OnDarkThemeAsync()
+    {
+        IsDarkTheme = true;
+        CurrentTheme = "dark";
+
+        await ApplyThemeAsync();
+        await IsDarkThemeChanged.InvokeAsync(IsDarkTheme);
+    }
+
+    [JSInvokable]
+    public async Task OnThemeChanged(string theme)
+    {
+        CurrentTheme = theme;
+        IsDarkTheme = string.Equals(CurrentTheme, "dark", StringComparison.OrdinalIgnoreCase);
+
+        await ApplyThemeAsync();
+        await IsDarkThemeChanged.InvokeAsync(IsDarkTheme);
+    }
+
+    private async ValueTask ApplyThemeAsync()
+    {
+        if (module is null)
+        {
+            throw new InvalidOperationException("JavaScript module is not loaded.");
+        }
+
+        await module.InvokeVoidAsync("setTheme", CurrentTheme);
+        await module.InvokeVoidAsync("setStoredTheme", CurrentTheme);
+
+        StateHasChanged();
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (module is not null)
+        {
+            try
+            {
+                await module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+
+        objRef?.Dispose();
+    }
+}
