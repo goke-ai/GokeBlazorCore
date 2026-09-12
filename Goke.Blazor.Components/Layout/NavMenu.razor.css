@@ -12,6 +12,7 @@
     display: flex !important;
     gap: 1rem;
     /*    display: block;*/
+    width: 100%;
     height: calc(100vh - 3.5rem);
     overflow-y: auto;
     flex-basis: unset;
