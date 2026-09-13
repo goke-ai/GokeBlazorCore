@@ -1,0 +1,151 @@
+﻿@inherits LayoutComponentBase
+@using Goke.Blazor.Components
+@using Goke.Blazor.Components.Layout
+@using Goke.Blazor.Components.Models
+@using TestWeb.Components.Shared
+
+<BaseLayout AdditionalMenuLinks="MenuLinks">
+    <AdditionalMenuItems>
+
+        <li class="nav-item dropdown">
+            <NavLink class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <BsIcon Name="@Icons.PersonFillGear" />
+                Account
+            </NavLink>
+            <ul class="dropdown-menu">
+                <li class="nav-item">
+                    <NavLink class="dropdown-item" href="Account/Login">
+                        <BsIcon Name="@Icons.PersonBadge" />
+                        <span>Login</span>
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="dropdown-item" href="Account/ExternalLogin">
+                        <BsIcon Name="@Icons.PersonFillUp" />
+                        <span>External Login</span>
+                    </NavLink>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li class="nav-item">
+                    <NavLink class="dropdown-item" href="Account/Register">
+                        <BsIcon Name="@Icons.PersonFillAdd" />
+                        <span>Register</span>
+                    </NavLink>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+            <NavLink class="nav-link dropdown-toggle" href="Account/Manage" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                admin@gok.loc
+            </NavLink>
+            <ul class="dropdown-menu">
+                <li>
+                    <NavLink class="dropdown-item" href="Account/Manage">
+                        <BsIcon Name="@Icons.PersonFillGear" />
+                        <span>Manage</span>
+                    </NavLink>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="/" />
+                        <button type="submit" class="dropdown-item nav-button">
+                            <BsIcon Name="@Icons.BoxArrowLeft" />
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    </AdditionalMenuItems>
+    <NavMenuEndItems>
+        <ThemeNavMenu CurrentTheme="@CurrentTheme"
+                      CurrentThemeChanged="@OnCurrentThemeChanged"
+                      IsDarkTheme="@IsDarkTheme"
+                      IsDarkThemeChanged="@OnIsDarkThemeChanged" />
+    </NavMenuEndItems>
+
+    <Body>
+        @Body
+    </Body>
+</BaseLayout>
+
+                                          
+@code {
+
+    // Menu links for the navigation menu
+    private IReadOnlyList<NavMenuItem> MenuLinks =>
+    [
+        new NavMenuItem
+        {
+            Title = "Counter",
+            Href = "counter",
+            Icon = Icons.PlusSquareFill,
+            IconCssClass = Icons.ToIconCss(Icons.PlusSquareFill)
+        },
+        new NavMenuItem
+        {
+            Title = "Weather",
+            Href = "weather",
+            Icon = Icons.CloudsFill,
+            IconCssClass = Icons.ToIconCss(Icons.CloudsFill)
+        },
+        new NavMenuItem
+        {
+            Title = "Admin",
+            Href = "",
+            Icon = Icons.PersonFillLock,
+            IconCssClass = Icons.ToIconCss(Icons.PersonFillLock),
+            Dropdown = new List<NavMenuItem>
+            {
+                new NavMenuItem
+                {
+                    Title = "Dashboard",
+                    Href = "Admin/Dashboard",
+                    Icon = Icons.Speedometer2,
+                    IconCssClass =Icons.ToIconCss(Icons.Speedometer2)
+                },
+                new NavMenuItem
+                {
+                    Title="-",
+                    Href= "-",
+                    IsDivider=true
+                },
+                new NavMenuItem
+                {
+                    Title = "Users",
+                    Href = "Admin/Users",
+                    Icon = Icons.PeopleFill,
+                    IconCssClass =Icons.ToIconCss(Icons.PeopleFill)
+                },
+                new NavMenuItem
+                {
+                    Title = "Roles",
+                    Href = "Admin/Roles",
+                    Icon = Icons.PersonWorkspace,
+                    IconCssClass = Icons.ToIconCss(Icons.PersonWorkspace)
+                }
+            }
+        },
+    ];
+
+    // theme
+    private string CurrentTheme { get; set; } = "dark";
+    private bool IsDarkTheme { get; set; }
+
+    private Task OnCurrentThemeChanged(string theme)
+    {
+        CurrentTheme = theme;
+        IsDarkTheme = string.Equals(theme, "dark", StringComparison.OrdinalIgnoreCase);
+        return Task.CompletedTask;
+    }
+
+    private Task OnIsDarkThemeChanged(bool value)
+    {
+        IsDarkTheme = value;
+        CurrentTheme = value ? "dark" : "light";
+        return Task.CompletedTask;
+    }
+}

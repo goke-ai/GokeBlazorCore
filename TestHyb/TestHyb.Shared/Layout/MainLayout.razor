@@ -1,10 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @using Goke.Blazor.Components.Models
 
-<BaseLayout AdditionalMenuLinks="MenuLinks" 
-                                          CurrentTheme="@CurrentTheme"
-                                          IsDarkTheme="@IsDarkTheme" 
-                                          IsDarkThemeChanged="@OnIsDarkThemeChanged">
+<BaseLayout AdditionalMenuLinks="MenuLinks" >
     <AdditionalMenuItems>
 
         <li class="nav-item dropdown">
@@ -60,6 +57,11 @@
             </ul>
         </li>
     </AdditionalMenuItems>
+    <NavMenuEndItems>
+        <ThemeControl CurrentTheme="@CurrentTheme"
+                      IsDarkTheme="@IsDarkTheme"
+                      IsDarkThemeChanged="@OnIsDarkThemeChanged" />
+    </NavMenuEndItems>
 
     <Body>
         @Body

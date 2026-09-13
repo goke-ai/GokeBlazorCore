@@ -6,9 +6,8 @@
     <div class="sidebar">
         <NavMenu AdditionalMenuLinks="AdditionalMenuLinks"
                  AdditionalMenuItems="AdditionalMenuItems"
-                 CurrentTheme="@CurrentTheme"
-                 IsDarkTheme="@IsDarkTheme"
-                 IsDarkThemeChanged="@IsDarkThemeChanged" />
+                 OtherMenuItems="OtherMenuItems"
+                 NavMenuEndItems="NavMenuEndItems" />
     </div>
 
     <main>
@@ -36,11 +35,9 @@
     public RenderFragment? AdditionalMenuItems { get; set; }
 
     [Parameter]
-    public string CurrentTheme { get; set; } = "dark";
-
+    public RenderFragment? OtherMenuItems { get; set; }
+    
     [Parameter]
-    public bool IsDarkTheme { get; set; }
-
-    [Parameter]
-    public EventCallback<bool> IsDarkThemeChanged { get; set; }
+    public RenderFragment? NavMenuEndItems { get; set; }    
+   
 }

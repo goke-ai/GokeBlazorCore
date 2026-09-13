@@ -8,10 +8,6 @@
     <div class="container-fluid">
         <a class="navbar-brand" href="">GBC</a>
 
-        @* <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button> *@
-
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
@@ -83,9 +79,7 @@
             </div>
 
             <div class="nav-end-item">
-            <ThemeControl CurrentTheme="@CurrentTheme"
-                          IsDarkTheme="@IsDarkTheme"
-                          IsDarkThemeChanged="@IsDarkThemeChanged" />
+                @NavMenuEndItems
             </div>
         </div>
     </div>
@@ -97,17 +91,12 @@
 
     [Parameter]
     public RenderFragment? AdditionalMenuItems { get; set; }
+
     [Parameter]
     public RenderFragment? OtherMenuItems { get; set; }
 
     [Parameter]
-    public string CurrentTheme { get; set; } = "dark";
-
-    [Parameter]
-    public bool IsDarkTheme { get; set; }
-
-    [Parameter]
-    public EventCallback<bool> IsDarkThemeChanged { get; set; }
+    public RenderFragment? NavMenuEndItems { get; set; }
 
     private string? currentUrl;
 
