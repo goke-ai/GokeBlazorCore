@@ -4,7 +4,8 @@
 <div class="page">
     <input type="checkbox" title="Navigation menu" class="navbar-toggler-main" />
     <div class="sidebar">
-        <NavMenu AdditionalMenuLinks="AdditionalMenuLinks"
+        <NavMenu BrandContent="BrandContent"
+                 AdditionalMenuLinks="AdditionalMenuLinks"
                  AdditionalMenuItems="AdditionalMenuItems"
                  OtherMenuItems="OtherMenuItems"
                  NavMenuEndItems="NavMenuEndItems" />
@@ -28,6 +29,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public RenderFragment? BrandContent { get; set; }
+
     [Parameter]
     public IReadOnlyList<NavMenuItem>? AdditionalMenuLinks { get; set; }
 
