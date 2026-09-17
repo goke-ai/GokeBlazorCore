@@ -84,7 +84,7 @@ main {
         }
 }
 
-@media (min-width: 641px) and (max-width: 1024.98px) {
+@media (min-width: 641px) and (max-width: 1239.98px) {
     .page {
         flex-direction: row;
     }
@@ -116,7 +116,7 @@ main {
     }
 }
 
-@media (min-width: 1025px) {
+@media (min-width: 1240px) {
     .page {
         flex-direction: column;
     }

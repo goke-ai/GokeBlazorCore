@@ -65,7 +65,7 @@
     
 }
 
-@media (max-width: 1024.98px) {
+@media (max-width: 1239.98px) {
     .navbar-expand-lg {
         display: flex;
         flex-direction: column;
@@ -92,13 +92,13 @@
 }
 
 /* Tablet*/
-@media (min-width: 641px) and (max-width: 1024.98px) {
+@media (min-width: 641px) and (max-width: 1239.98px) {
     .navbar-toggler {
     }
 }
 
 /* Laptop */
-@media (min-width: 1024.98px) {
+@media (min-width: 1240px) {
     .navbar-collapse {
         height: unset;
         overflow-y: unset;
