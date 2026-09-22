@@ -42,24 +42,35 @@
             return;
         }
 
-        module = await JS.InvokeAsync<IJSObjectReference>(
-            "import",
-            "./_content/Goke.Blazor.Components/ThemeControl.razor.js");
+        try
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>(
+                "import",
+                "./_content/Goke.Blazor.Components/ThemeControl.razor.js");
 
-        await module.InvokeVoidAsync("Initialize");
+            await module.InvokeVoidAsync("Initialize");
 
-        var savedTheme = await module.InvokeAsync<string?>("getStoredTheme");
+            var savedTheme = await module.InvokeAsync<string?>("getStoredTheme");
 
-        CurrentTheme = string.IsNullOrWhiteSpace(savedTheme)
-            ? await module.InvokeAsync<string>("getSystemTheme")
-            : savedTheme;
+            CurrentTheme = string.IsNullOrWhiteSpace(savedTheme)
+                ? await module.InvokeAsync<string>("getSystemTheme")
+                : savedTheme;
 
-        IsDarkTheme = string.Equals(CurrentTheme, "dark", StringComparison.OrdinalIgnoreCase);
+            IsDarkTheme = string.Equals(CurrentTheme, "dark", StringComparison.OrdinalIgnoreCase);
 
-        await module.InvokeVoidAsync("registerThemeChangeHandler", objRef);
-        await ApplyThemeAsync();
-        await CurrentThemeChanged.InvokeAsync(CurrentTheme);
-        await IsDarkThemeChanged.InvokeAsync(IsDarkTheme);
+            await module.InvokeVoidAsync("registerThemeChangeHandler", objRef);
+            await ApplyThemeAsync();
+            await CurrentThemeChanged.InvokeAsync(CurrentTheme);
+            await IsDarkThemeChanged.InvokeAsync(IsDarkTheme);
+        }
+        catch (JSDisconnectedException)
+        {
+            // Host/circuit/webview disconnected during startup interop.
+        }
+        catch (TaskCanceledException)
+        {
+            // Interop canceled during teardown/navigation/startup transition.
+        }
     }
 
     private async Task OnLightThemeAsync()
