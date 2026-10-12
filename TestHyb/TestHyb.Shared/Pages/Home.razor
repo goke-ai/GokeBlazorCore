@@ -1,0 +1,16 @@
+﻿@page "/"
+@using TestHyb.Shared.Services
+@inject IFormFactor FormFactor
+
+<PageTitle>Home</PageTitle>
+
+<h1>
+    <BsIcon Name="@Icons.HouseDoorFill" /> Hello, world!
+</h1>
+
+<BsIcon Name="@Icons.FuelPumpDieselFill" />Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
+
+@code {
+    private string factor => FormFactor.GetFormFactor();
+    private string platform => FormFactor.GetPlatform();
+}
