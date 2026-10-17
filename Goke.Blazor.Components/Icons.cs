@@ -223,6 +223,47 @@ namespace Goke.Blazor.Components
         public const string PauseFill = "pause-fill";
         public const string PauseCircle = "pause-circle";
 
+        // 19 - Geo
+        public const string GlobeAmericas = "globe-americas";
+
+        public const string GlobeAmericasFill = "globe-americas-fill";
+
+        public const string GlobeAsiaAustralia = "globe-asia-australia";
+
+        public const string GlobeAsiaAustraliaFill = "globe-asia-australia-fill";
+
+        public const string GlobeCentralSouthAsia = "globe-central-south-asia";
+
+        public const string GlobeCentralSouthAsiaFill = "globe-central-south-asia-fill";
+
+        public const string GlobeEuropeAfrica = "globe-europe-africa";
+
+        public const string GlobeEuropeAfricaFill = "globe-europe-africa-fill";
+
+        public const string PinMapFill = "pin-map-fill";
+
+        public const string CursorFill = "cursor-fill";
+
+        public const string GeoFill = "geo-fill";
+
+        public const string GeoAlt = "geo-alt";
+
+        public const string GeoAltFill = "geo-alt-fill";
+
+        public const string Radar = "radar";
+
+        public const string MapFill = "map-fill";
+
+        public const string Bullseye = "bullseye";
+
+        public const string Compass = "compass";
+
+        public const string CompassFill = "compass-fill";
+
+        public const string Crosshair = "crosshair";
+
+        public const string Crosshair2 = "crosshair2";
+
         public static string ToIconCss(string iconName) => $"bi bi-{iconName}-nav-menu";
     }
 }
