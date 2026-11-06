@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Goke.Aspnet.Core
 {
-    public class HubClientService() : IAsyncDisposable
+    public class HubClientService : IAsyncDisposable
     {
         private HubConnection? connection;
         private readonly List<IDisposable> subscriptions = [];
@@ -26,7 +26,7 @@ namespace Goke.Aspnet.Core
 
         public bool IsConnected => connection?.State == HubConnectionState.Connected;
 
-        public event Func<Task>? Reconnected;
+        public event Func<string?, Task>? Reconnected;
         public event Func<Task>? Reconnecting;
         public event Func<Task>? Closed;
 
@@ -193,20 +193,52 @@ namespace Goke.Aspnet.Core
                     "Hub connection not initialized.");
             }
 
-            return args.Length switch
+            var task = args.Length switch
             {
-                1 => await connection.InvokeAsync<TResult>(methodName, args[0]),
-                2 => await connection.InvokeAsync<TResult>(methodName, args[0], args[1]),
-                3 => await connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2]),
-                4 => await connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3]),
-                5 => await connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4]),
-                6 => await connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5]),
-                7 => await connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6]),
-                8 => await connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]),
-                9 => await connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]),
-                10 => await connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]),
-                _ => await connection.InvokeAsync<TResult>(methodName),
+                1 => connection.InvokeAsync<TResult>(methodName, args[0]),
+                2 => connection.InvokeAsync<TResult>(methodName, args[0], args[1]),
+                3 => connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2]),
+                4 => connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3]),
+                5 => connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4]),
+                6 => connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5]),
+                7 => connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6]),
+                8 => connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]),
+                9 => connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]),
+                10 => connection.InvokeAsync<TResult>(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]),
+                _ => connection.InvokeAsync<TResult>(methodName),
             };
+
+            return await task;
+        }
+
+        public async Task InvokeAsync(
+                                        string methodName,
+                                        params object[] args)
+        {
+            ThrowIfDisposed();
+
+            if (connection is null)
+            {
+                throw new InvalidOperationException(
+                    "Hub connection not initialized.");
+            }
+
+            Task task = args.Length switch
+            {
+                1 => connection.InvokeAsync(methodName, args[0]),
+                2 => connection.InvokeAsync(methodName, args[0], args[1]),
+                3 => connection.InvokeAsync(methodName, args[0], args[1], args[2]),
+                4 => connection.InvokeAsync(methodName, args[0], args[1], args[2], args[3]),
+                5 => connection.InvokeAsync(methodName, args[0], args[1], args[2], args[3], args[4]),
+                6 => connection.InvokeAsync(methodName, args[0], args[1], args[2], args[3], args[4], args[5]),
+                7 => connection.InvokeAsync(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6]),
+                8 => connection.InvokeAsync(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]),
+                9 => connection.InvokeAsync(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]),
+                10 => connection.InvokeAsync(methodName, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]),
+                _ => connection.InvokeAsync(methodName),
+            };
+
+            await task;
         }
 
         public async Task SendAsync(
@@ -236,8 +268,6 @@ namespace Goke.Aspnet.Core
                 default: await connection.SendAsync(methodName); break;
             }
         }
-
-
 
         public void RemoveHandler(string methodName)
         {
@@ -319,10 +349,7 @@ namespace Goke.Aspnet.Core
             GC.SuppressFinalize(this);
         }
 
-
-
-        private async Task OnReconnecting(
-            Exception? exception)
+        private async Task OnReconnecting(Exception? exception)
         {
             OnConnectionStateChanged(HubConnectionState.Reconnecting, "Reconnecting to chat hub...");
 
@@ -332,19 +359,23 @@ namespace Goke.Aspnet.Core
             }
         }
 
-        private async Task OnReconnected(
-            string? connectionId)
+        private async Task OnReconnected(string? connectionId)
         {
+            if(connection is null)
+            {
+                throw new InvalidOperationException(
+                    "Hub connection is not initialized.");
+            }
+
             OnConnectionStateChanged(connection.State, "Connected to chat hub...");
 
             if (Reconnected is not null)
             {
-                await Reconnected.Invoke();
+                await Reconnected.Invoke(connectionId);
             }
         }
 
-        private async Task OnClosed(
-            Exception? exception)
+        private async Task OnClosed(Exception? exception)
         {
             OnConnectionStateChanged(HubConnectionState.Disconnected, "Disconnected from chat hub.");
             if (Closed is not null)

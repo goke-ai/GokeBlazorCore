@@ -9,52 +9,64 @@ namespace Goke.Aspnet.Core
     public class HubClientFactory(
         IOptions<HubOptions> options,
         IAccessTokenProvider accessTokenProvider, 
-        ICookieProvider cookieProvider): IHubClientFactory
+        ICookieProvider cookieProvider
+        ) : IHubClientFactory
     {
 
-        private readonly HubOptions hubOptions = options.Value;
+        //private readonly HubOptions hubOptions = options.Value;
         HubClientService? hub;
 
-        public async Task<HubClientService> CreateHubAsync()
+        /// <summary>
+        /// hubName is in HubOptions
+        /// </summary>
+        /// <param name="hubName"></param>
+        /// <returns></returns>
+        public async Task<HubClientService> CreateHubAsync(string hubName)
         {
-            var option = hubOptions.Connections.FirstOrDefault(h => h.HubName.Equals("chat", StringComparison.OrdinalIgnoreCase));
+            var hubOptions = options.Value;
+            var option = hubOptions.Connections.First(h => h.HubName.Equals(hubName, StringComparison.OrdinalIgnoreCase));
 
-            hub ??= option.AuthProvider switch
+            hub = await CreateHubAsync(hubOptions.BaseUrl, option.Path, option.AuthProvider);
+            return hub;
+        }
+
+        public async Task<HubClientService> CreateHubAsync(string baseUrl, string path, string authProvider)
+        {
+            hub ??= authProvider switch
             {
-                "Cookie" => await CreateCookieHubAsync(option.Path),
-                "AccessToken" => await CreateAccessTokenHubAsync(option.Path),
-                _ => throw new InvalidOperationException($"Unsupported auth provider: {option.AuthProvider}"),
+                "Cookie" => await CreateCookieHubAsync(baseUrl, path),
+                "AccessToken" => await CreateAccessTokenHubAsync(baseUrl, path),
+                _ => throw new InvalidOperationException($"Unsupported auth provider: {authProvider}"),
             };
 
             return hub;
         }
 
-        public async Task<HubClientService> CreateCookieHubAsync(
-        string hubPath)
+
+        protected async Task<HubClientService> CreateCookieHubAsync(string baseUrl, string hubPath)
         {
             var service = new HubClientService();
 
             await service.InitializeAsync(
-                hubUri: CreateHubUri(hubPath),
+                hubUri: CreateHubUri(baseUrl, hubPath),
                 cookies: await CreateAuthCookies());
 
             return service;
         }
 
-        public async Task<HubClientService> CreateAccessTokenHubAsync(
-        string hubPath)
+        protected async Task<HubClientService> CreateAccessTokenHubAsync(string baseUrl, string hubPath)
         {
             var service = new HubClientService();
 
             await service.InitializeAsync(
-                hubUri: CreateHubUri(hubPath),
+                hubUri: CreateHubUri(baseUrl, hubPath),
                 accessTokenProvider: GetAccessTokenAsync
                 );
 
             return service;
         }
 
-        private Uri CreateHubUri(string relativePath) => new(new Uri(hubOptions.BaseUrl), relativePath);
+        private static Uri CreateHubUri(string baseUrl, string relativePath) => new(new Uri(baseUrl), relativePath);
 
         private Task<string?> GetAccessTokenAsync() => accessTokenProvider.GetAccessTokenAsync();
 
